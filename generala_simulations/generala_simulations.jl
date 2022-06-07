@@ -38,7 +38,7 @@ function served_ladder_probability_estimation(num_throws=1_000_000)
     for i in 1:num_throws
         throw = throw_dice(5)
         sort!(throw)
-        throws[i] = throw == [1, 2, 3, 4, 5] || throw == [2, 3, 4, 5, 6]
+        throws[i] = throw == [1, 2, 3, 4, 5] || throw == [2, 3, 4, 5, 6] || throw == [1, 3, 4, 5, 6]
     end
     return sum(throws)/num_throws
 end
