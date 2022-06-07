@@ -47,4 +47,4 @@ end
 println("The probability of a served generala is: $(served_generala_probability_estimation())")
 println("The probability of a served full is: $(served_full_probability_estimation())")
 println("The probability of a served poker is: $(served_poker_probability_estimation())")
-println("The probability of a served straight is: $(served_ladder_probability_estimation())")
+println("The probability of a served straight is: $(served_straight_probability_estimation())")
