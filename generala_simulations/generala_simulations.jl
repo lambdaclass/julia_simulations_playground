@@ -1,4 +1,5 @@
 using Random
+using StatsBase
 
 SIX_SIDES_DICE = 1:6
 
