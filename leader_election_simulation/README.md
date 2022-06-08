@@ -18,11 +18,11 @@ In this scenario we want to simulate every validator's wealth's evolution given 
 
 ### Setup
 
-To setup this scenario we need to create validators pool with $n$ validators, each of which has to stake a certain amount of credits $c$.
+To setup this scenario we need to create validator pool with $n$ validators, each of which has to stake a certain amount of credits $c$.
 
 ### Leader Election
 
-This can be modeled as a weighted random choice based on the validator's stake or as a equiprobable random choice.
+This can be modeled as a weighted random choice based on the validator's stake or as an equiprobable random choice.
 
 ### Proposal Acceptance
 
