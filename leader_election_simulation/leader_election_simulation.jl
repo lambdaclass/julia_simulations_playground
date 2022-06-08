@@ -79,9 +79,7 @@ begin
 
     plot(
         Matrix(df), 
-        labels=permutedims(names(df)), 
-        legend=:topleft, 
-        xticks=0:1:10,
-        yticks=0:10:50,
+        labels=permutedims(names(df)),
+        legend=false,
     )
 end
