@@ -7,6 +7,7 @@ using Plots
 
 BLOCK_REWARD = 100
 VALIDATORS_COUNT = 50
+ROUND_COUNT = 1_000_000
 
 mutable struct Validator
     stake::Float64
@@ -73,7 +74,7 @@ function xxx(num_rounds)
 end
 
 begin
-    evolution_of_validators_stake_in_rounds = xxx(9)
+    evolution_of_validators_stake_in_rounds = xxx(ROUND_COUNT)
 
     df = DataFrame(evolution_of_validators_stake_in_rounds)
 
