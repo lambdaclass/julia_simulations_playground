@@ -5,6 +5,9 @@ using DataFrames
 using CSV
 using Plots
 
+BLOCK_REWARD = 100
+VALIDATORS_COUNT = 50
+
 mutable struct Validator
     stake::Float64
     id::Int64
@@ -43,7 +46,7 @@ function select_leader_from(validators_pool::ValidatorsPool)
 end
 
 function reward(validator::Validator)
-    validator.stake += 1
+    validator.stake += BLOCK_REWARD
 end
 
 function slash(validator::Validator)
@@ -60,7 +63,7 @@ function simulate_leader_election(validators_pool, round, rounds_info)
 end
 
 function xxx(num_rounds)
-    validators_count = 4
+    validators_count = VALIDATORS_COUNT
     validators_pool = create_validators_pool_with(validators_count)  
     rounds_info = Dict(validator.id => [validator.stake] for validator in validators_pool.validators)
     for r in 1:num_rounds
