@@ -34,7 +34,7 @@ function stake_proportion(validator::Validator, validators_pool::ValidatorsPool)
 end
 
 function weight_validator(validator::Validator, validators_pool::ValidatorsPool)
-    return rand(Poisson(1/stake_proportion(validator, validators_pool)))
+    return stake_proportion(validator, validators_pool)
 end
 
 function validators_weight(validators_pool::ValidatorsPool)
