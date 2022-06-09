@@ -32,20 +32,24 @@ function create_validators_pool_with(validators_count)
     return ValidatorsPool([Validator(sample(32:50), i) for i in 1:validators_count])
 end
 
-function total_stake(validators_pool::ValidatorsPool)
-    return sum(validator -> validator.stake, validators_pool.validators)
+function validator_got_wise()
+    return rand(Bernoulli(GOT_WISE_PROBABILITY))
 end
 
-function stake_proportion(validator::Validator, validators_pool::ValidatorsPool)
-    return validator.stake / total_stake(validators_pool)
+function timeout()
+    return rand(Bernoulli(TIMEOUT_PROBABILITY))
 end
 
-function weight_validator(validator::Validator, validators_pool::ValidatorsPool)
-    return stake_proportion(validator, validators_pool)
+function vote(voter::Validator, proposer::Validator)
+    return !timeout() &&
+            ((voter.is_honest && proposer.is_honest) ||
+            (voter.is_honest&& !proposer.is_honest && validator_got_wise()) || # Verify
+            (!voter.is_honest && !proposer.is_honest)) # Byzantine voter votes only byzantine proposals
 end
 
-function validators_weight(validators_pool::ValidatorsPool)
-    return map(validator -> weight_validator(validator, validators_pool), validators_pool.validators)
+function simulate_proposal_voting(leader::Validator, validators_without_leader)
+    votes = map(validator -> vote(validator, leader), validators_without_leader)
+    return mean(votes) > 2/3
 end
 
 function select_leader_from(validators_pool::ValidatorsPool)
