@@ -12,6 +12,8 @@ TIMEOUT_PROBABILITY  = .5
 GOT_WISE_PROBABILITY = .5
 ADMITION_STAKE = 32
 REINVESTMENT_PROBABILITY = .5
+EVEN_INITIAL_STAKE = true
+HONEST_NODE_PROPORTION = 2/3
 
 mutable struct Validator
     id::Int64
@@ -27,6 +29,7 @@ end
 function reward(validator::Validator)
     if reinvest()
         validator.stake += BLOCK_REWARD
+    end
 end
 
 function slash(validator::Validator)
