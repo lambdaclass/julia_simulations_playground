@@ -24,12 +24,13 @@ struct ValidatorsPool
     validators::Array{Validator}
 end
 
-function length(validators_pool::ValidatorsPool)
-    return length(validators_pool.validators)
+function reward(validator::Validator)
+    if reinvest()
+        validator.stake += BLOCK_REWARD
 end
 
-function create_validators_pool_with(validators_count)
-    return ValidatorsPool([Validator(sample(32:50), i) for i in 1:validators_count])
+function slash(validator::Validator)
+    validator.stake -= validator.stake * .05
 end
 
 function validator_got_wise()
@@ -52,29 +53,42 @@ function simulate_proposal_voting(leader::Validator, validators_without_leader)
     return mean(votes) > 2/3
 end
 
-function select_leader_from(validators_pool::ValidatorsPool)
-    return sample(validators_pool.validators, Weights(validators_weight(validators_pool)))
+function propose_block(validator::Validator)
+    validator.proposals += 1
 end
 
-function reward(validator::Validator)
-    validator.stake += BLOCK_REWARD
+function total_stake(validators)
+    return sum(validator -> validator.stake, validators)
 end
 
-function slash(validator::Validator)
-    validator.stake -= validator.stake * .05
+function stake_proportion(validator::Validator, validators)
+    return validator.stake / total_stake(validators)
+end
+
+function weight_validator(validator::Validator, validators)
+    return stake_proportion(validator, validators)
+end
+
+function validators_weight(validators)
+    return map(validator -> weight_validator(validator, validators), validators)
+end
+
+function select_leader_from(validators)
+    return sample(validators, Weights(validators_weight(validators)))
 end
 
 function simulate_leader_election(validators_pool, round, rounds_info)
     leader = select_leader_from(validators_pool)
-    proposal_accepted = rand(Bernoulli(1))
+    propose_block(leader)
+    proposal_accepted = simulate_proposal_voting(leader, filter(validator -> validator ≠ leader, validators_pool))
     proposal_accepted ? reward(leader) : slash(leader)
-    for (key, value) in rounds_info
-        append!(rounds_info[key], validators_pool.validators[key].stake)
+    for (key, _) in rounds_info
+        append!(rounds_info[key], validators_pool[key].stake)
     end
 end
 
 function simulate_leader_election_n_rounds(num_rounds, validators_pool)
-    rounds_info = Dict(validator.id => [validator.stake] for validator in validators_pool.validators)
+    rounds_info = Dict(validator.id => [validator.stake] for validator in validators_pool)
     for r in 1:num_rounds
         simulate_leader_election(validators_pool, r, rounds_info)
     end
@@ -118,6 +132,7 @@ end
 begin
     validators_pool = setup_simulation(VALIDATORS_COUNT, EVEN_INITIAL_STAKE, HONEST_NODE_PROPORTION)
     evolution_of_validators_stake_in_rounds = simulate_leader_election_n_rounds(ROUND_COUNT, validators_pool)
+
     df = DataFrame(evolution_of_validators_stake_in_rounds)
 
     plot(
