@@ -14,8 +14,10 @@ ADMITION_STAKE = 32
 REINVESTMENT_PROBABILITY = .5
 
 mutable struct Validator
-    stake::Float64
     id::Int64
+    stake::Float64
+    is_honest::Bool
+    proposals::Int64
 end
 
 struct ValidatorsPool
