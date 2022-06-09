@@ -56,7 +56,7 @@ end
 
 function simulate_leader_election(validators_pool, round, rounds_info)
     leader = select_leader_from(validators_pool)
-    proposal_accepted = rand(Bernoulli(2/3))
+    proposal_accepted = rand(Bernoulli(1))
     proposal_accepted ? reward(leader) : slash(leader)
     for (key, value) in rounds_info
         append!(rounds_info[key], validators_pool.validators[key].stake)
