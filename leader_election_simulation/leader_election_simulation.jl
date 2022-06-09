@@ -5,8 +5,8 @@ using DataFrames
 using CSV
 using Plots
 
-BLOCK_REWARD = 100
-VALIDATORS_COUNT = 50
+BLOCK_REWARD = 30
+VALIDATORS_COUNT = 30
 ROUND_COUNT = 1_000_000
 
 mutable struct Validator
