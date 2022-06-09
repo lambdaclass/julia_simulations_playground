@@ -63,9 +63,7 @@ function simulate_leader_election(validators_pool, round, rounds_info)
     end
 end
 
-function xxx(num_rounds)
-    validators_count = VALIDATORS_COUNT
-    validators_pool = create_validators_pool_with(validators_count)  
+function xxx(num_rounds, validators_pool)
     rounds_info = Dict(validator.id => [validator.stake] for validator in validators_pool.validators)
     for r in 1:num_rounds
         simulate_leader_election(validators_pool, r, rounds_info)
@@ -74,8 +72,8 @@ function xxx(num_rounds)
 end
 
 begin
-    evolution_of_validators_stake_in_rounds = xxx(ROUND_COUNT)
-
+    validators_pool = create_validators_pool_with(VALIDATORS_COUNT)
+    evolution_of_validators_stake_in_rounds = xxx(ROUND_COUNT, validators_pool)
     df = DataFrame(evolution_of_validators_stake_in_rounds)
 
     plot(
