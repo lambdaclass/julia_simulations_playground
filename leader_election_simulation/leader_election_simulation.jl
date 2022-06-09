@@ -20,8 +20,8 @@ mutable struct Validator
     proposals::Int64
 end
 
-struct ValidatorsPool
-    validators::Array{Validator}
+function reinvest()
+    return rand(Bernoulli(REINVESTMENT_PROBABILITY))
 end
 
 function reward(validator::Validator)
