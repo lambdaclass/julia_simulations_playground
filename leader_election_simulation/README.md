@@ -14,7 +14,7 @@ make run
 
 ## Simulation
 
-In this scenario we want to simulate every validator's wealth's evolution given that it was elected as leader and its block proposal was accepted or not.
+In this scenario we want to simulate every validator's wealth's evolution given whether it was elected as leader and whether its block proposal was accepted or not.
 
 ### Setup
 
