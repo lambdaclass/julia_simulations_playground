@@ -30,6 +30,7 @@ SCENARIOS = product(
 mutable struct Validator
     id::Int64
     stake::Float64
+    balance::Float64
     is_honest::Bool
     proposals::Int64
 end
@@ -38,10 +39,10 @@ function reinvest(reinvestment_probability)
     return rand(Bernoulli(reinvestment_probability))
 end
 
-function reward(validator::Validator)
-    if reinvest()
-        validator.stake += BLOCK_REWARD
-    end
+function reward(validator::Validator, reinvestment_probability)
+    reinvest(reinvestment_probability) ?
+    validator.stake += BLOCK_REWARD :
+    validator.balance += BLOCK_REWARD
 end
 
 function slash(validator::Validator)
