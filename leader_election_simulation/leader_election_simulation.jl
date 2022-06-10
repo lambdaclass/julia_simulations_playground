@@ -155,7 +155,7 @@ function simulate_scenario(scenario)
     )
 
     df = DataFrame(evolution_of_validators_stake_in_rounds)
-    CSV.write("./data/$(scenario).csv", df)
+    CSV.write("./data/$(scenario).csv", df, compress=true)
 
     plot(
         Matrix(df), 
