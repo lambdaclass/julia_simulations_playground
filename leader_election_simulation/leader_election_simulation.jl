@@ -9,8 +9,6 @@ using IterTools
 BLOCK_REWARD = 30
 VALIDATORS_COUNT = 30
 ROUND_COUNT = 1_000_000
-TIMEOUT_PROBABILITY  = .5
-GOT_WISE_PROBABILITY = .5
 ADMITION_STAKE = 32
 
 HONEST_NODE_PROPORTION = [1/3, 2/3, 1.0]
@@ -112,19 +110,19 @@ function simulate_leader_election_n_rounds(num_rounds, validators_pool, reinvest
 end
 
 function create_byzantine_validators_with_even_initial_stake(byzantine_validators)
-    return [Validator(i, ADMITION_STAKE, false, 0) for i in 1:byzantine_validators]
+    return [Validator(i, ADMITION_STAKE, 0.0, false, 0) for i in 1:byzantine_validators]
 end
 
 function create_honest_validators_with_even_initial_stake(honest_validators_count)
-    return [Validator(i, ADMITION_STAKE, true, 0) for i in 1:honest_validators_count]
+    return [Validator(i, ADMITION_STAKE, 0.0, true, 0) for i in 1:honest_validators_count]
 end
 
 function create_byzantine_validators_with_random_initial_stake(byzantine_validators)
-    return [Validator(i, sample(ADMITION_STAKE:50), false, 0) for i in 1:byzantine_validators]
+    return [Validator(i, sample(ADMITION_STAKE:50), 0.0, false, 0) for i in 1:byzantine_validators]
 end
 
 function create_honest_validators_with_random_initial_stake(honest_validators_count)
-    return [Validator(i, sample(ADMITION_STAKE:50), true, 0) for i in 1:honest_validators_count]
+    return [Validator(i, sample(ADMITION_STAKE:50), 0.0, true, 0) for i in 1:honest_validators_count]
 end
 
 function setup_simulation(validators_count::Int64, even_stake::Bool, honest_validators_proportion::Float64)   
