@@ -165,3 +165,10 @@ function simulate_scenario(scenario)
         legend=false,
     )
 end
+
+for (i, scenario) in enumerate(SCENARIOS)
+    println("Simulating scenario $(i)")
+    @show scenario
+    @time simulate_scenario(scenario)
+    println("$(length(SCENARIOS)-i) more to simulate...")
+end
