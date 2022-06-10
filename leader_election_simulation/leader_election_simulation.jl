@@ -34,8 +34,8 @@ mutable struct Validator
     proposals::Int64
 end
 
-function reinvest()
-    return rand(Bernoulli(REINVESTMENT_PROBABILITY))
+function reinvest(reinvestment_probability)
+    return rand(Bernoulli(reinvestment_probability))
 end
 
 function reward(validator::Validator)
@@ -48,23 +48,23 @@ function slash(validator::Validator)
     validator.stake -= validator.stake * .05
 end
 
-function validator_got_wise()
-    return rand(Bernoulli(GOT_WISE_PROBABILITY))
+function validator_got_wise(got_wise_probability)
+    return rand(Bernoulli(got_wise_probability))
 end
 
-function timeout()
-    return rand(Bernoulli(TIMEOUT_PROBABILITY))
+function timeout(timeout_probability)
+    return rand(Bernoulli(timeout_probability))
 end
 
-function vote(voter::Validator, proposer::Validator)
-    return !timeout() &&
+function vote(voter::Validator, proposer::Validator, timeout_probability, got_wise_probability)
+    return !timeout(timeout_probability) &&
             ((voter.is_honest && proposer.is_honest) ||
-            (voter.is_honest&& !proposer.is_honest && validator_got_wise()) || # Verify
+            (voter.is_honest&& !proposer.is_honest && validator_got_wise(got_wise_probability)) || # Verify
             (!voter.is_honest && !proposer.is_honest)) # Byzantine voter votes only byzantine proposals
 end
 
-function simulate_proposal_voting(leader::Validator, validators_without_leader)
-    votes = map(validator -> vote(validator, leader), validators_without_leader)
+function simulate_proposal_voting(leader::Validator, validators_without_leader, timeout_probability, got_wise_probability)
+    votes = map(validator -> vote(validator, leader, timeout_probability, got_wise_probability), validators_without_leader)
     return mean(votes) > 2/3
 end
 
@@ -92,20 +92,20 @@ function select_leader_from(validators)
     return sample(validators, Weights(validators_weight(validators)))
 end
 
-function simulate_leader_election(validators_pool, round, rounds_info)
+function simulate_leader_election(validators_pool, rounds_info, reinvestment_probability, timeout_probability, got_wise_probability)
     leader = select_leader_from(validators_pool)
     propose_block(leader)
-    proposal_accepted = simulate_proposal_voting(leader, filter(validator -> validator ≠ leader, validators_pool))
-    proposal_accepted ? reward(leader) : slash(leader)
+    proposal_accepted = simulate_proposal_voting(leader, filter(validator -> validator ≠ leader, validators_pool), timeout_probability, got_wise_probability)
+    proposal_accepted ? reward(leader, reinvestment_probability) : slash(leader)
     for (key, _) in rounds_info
         append!(rounds_info[key], validators_pool[key].stake)
     end
 end
 
-function simulate_leader_election_n_rounds(num_rounds, validators_pool)
+function simulate_leader_election_n_rounds(num_rounds, validators_pool, reinvestment_probability, timeout_probability, got_wise_probability)
     rounds_info = Dict(validator.id => [validator.stake] for validator in validators_pool)
     for r in 1:num_rounds
-        simulate_leader_election(validators_pool, r, rounds_info)
+        simulate_leader_election(validators_pool, rounds_info, reinvestment_probability, timeout_probability, got_wise_probability)
     end
     return Dict(string(k)=>v  for (k,v) in pairs(rounds_info))
 end
