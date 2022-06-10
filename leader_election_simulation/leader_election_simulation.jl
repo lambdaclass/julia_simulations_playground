@@ -4,6 +4,7 @@ using StatsBase
 using DataFrames
 using CSV
 using Plots
+using IterTools
 
 BLOCK_REWARD = 30
 VALIDATORS_COUNT = 30
@@ -11,9 +12,20 @@ ROUND_COUNT = 1_000_000
 TIMEOUT_PROBABILITY  = .5
 GOT_WISE_PROBABILITY = .5
 ADMITION_STAKE = 32
-REINVESTMENT_PROBABILITY = .5
-EVEN_INITIAL_STAKE = true
-HONEST_NODE_PROPORTION = 2/3
+
+HONEST_NODE_PROPORTION = [1/3, 2/3, 1.0]
+EVEN_INITIAL_STAKE = [true, false]
+REINVESTMENT_PROBABILITY = [.5, 1.0] # if no reinvestment look at another variables like proposals accepted or balance
+TIMEOUT_PROBABILITY  = [.0, .5]
+GOT_WISE_PROBABILITY = [.0, .50, 1.0]
+
+SCENARIOS = product(
+    HONEST_NODE_PROPORTION, 
+    EVEN_INITIAL_STAKE, 
+    REINVESTMENT_PROBABILITY, 
+    TIMEOUT_PROBABILITY, 
+    GOT_WISE_PROBABILITY, 
+)
 
 mutable struct Validator
     id::Int64
