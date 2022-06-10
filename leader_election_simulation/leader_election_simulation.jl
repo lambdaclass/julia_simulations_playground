@@ -58,7 +58,7 @@ end
 function vote(voter::Validator, proposer::Validator, timeout_probability, got_wise_probability)
     return !timeout(timeout_probability) &&
             ((voter.is_honest && proposer.is_honest) ||
-            (voter.is_honest&& !proposer.is_honest && validator_got_wise(got_wise_probability)) || # Verify
+            (voter.is_honest && !proposer.is_honest && !validator_got_wise(got_wise_probability)) || # Verify
             (!voter.is_honest && !proposer.is_honest)) # Byzantine voter votes only byzantine proposals
 end
 
