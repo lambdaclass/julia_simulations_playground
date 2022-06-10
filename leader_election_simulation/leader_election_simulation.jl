@@ -6,7 +6,7 @@ using CSV
 using Plots
 using IterTools
 
-BLOCK_REWARD = 30
+BLOCK_REWARD = 2
 VALIDATORS_COUNT = 30
 ROUND_COUNT = 1_000_000
 ADMITION_STAKE = 32
@@ -14,7 +14,7 @@ ADMITION_STAKE = 32
 HONEST_NODE_PROPORTION = [1/3, 2/3, 1.0]
 EVEN_INITIAL_STAKE = [true, false]
 REINVESTMENT_PROBABILITY = [.5, 1.0] # if no reinvestment look at another variables like proposals accepted or balance
-TIMEOUT_PROBABILITY  = [.0, .5]
+TIMEOUT_PROBABILITY  = [.0, .1]
 GOT_WISE_PROBABILITY = [.0, .50, 1.0]
 
 SCENARIOS = product(
