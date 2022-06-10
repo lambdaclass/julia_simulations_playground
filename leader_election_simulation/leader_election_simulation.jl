@@ -157,11 +157,11 @@ function simulate_scenario(scenario)
     df = DataFrame(evolution_of_validators_stake_in_rounds)
     CSV.write("./data/$(scenario).csv", df, compress=true)
 
-    plot(
+    savefig(plot(
         Matrix(df), 
         labels=permutedims(names(df)),
         legend=false,
-    )
+    ), "./images/$(scenario).png")
 end
 
 for (i, scenario) in enumerate(SCENARIOS)
