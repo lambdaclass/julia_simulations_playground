@@ -144,11 +144,19 @@ function setup_simulation(validators_count::Int64, even_stake::Bool, honest_vali
         )
 end
 
-begin
-    validators_pool = setup_simulation(VALIDATORS_COUNT, EVEN_INITIAL_STAKE, HONEST_NODE_PROPORTION)
-    evolution_of_validators_stake_in_rounds = simulate_leader_election_n_rounds(ROUND_COUNT, validators_pool)
+function simulate_scenario(scenario)
+    (honest_node_proportion, even_initial_stake, reinvestment_probability, timeout_probability, got_wise_probability) = scenario
+    validators_pool = setup_simulation(VALIDATORS_COUNT, even_initial_stake, honest_node_proportion)
+    evolution_of_validators_stake_in_rounds = simulate_leader_election_n_rounds(
+        ROUND_COUNT, 
+        validators_pool, 
+        reinvestment_probability, 
+        timeout_probability, 
+        got_wise_probability
+    )
 
     df = DataFrame(evolution_of_validators_stake_in_rounds)
+    CSV.write("./data/$(scenario).csv", df)
 
     plot(
         Matrix(df), 
