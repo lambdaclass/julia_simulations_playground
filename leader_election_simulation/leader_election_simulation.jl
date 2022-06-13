@@ -10,6 +10,7 @@ BLOCK_REWARD = 2
 VALIDATORS_COUNT = 30
 ROUND_COUNT = 1_000_000
 ADMITION_STAKE = 32
+SLASH_PENALTY = 1
 
 HONEST_NODE_PROPORTION = [1/3, 2/3, 1.0]
 EVEN_INITIAL_STAKE = [true, false]
@@ -44,7 +45,7 @@ function reward(validator::Validator, reinvestment_probability)
 end
 
 function slash(validator::Validator)
-    validator.stake -= validator.stake * .05
+    validator.stake -= SLASH_PENALTY
 end
 
 function validator_got_wise(got_wise_probability)
