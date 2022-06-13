@@ -114,16 +114,16 @@ function simulate_leader_election_n_rounds(num_rounds, validators_pool, reinvest
     return Dict(string(k)=>v  for (k,v) in pairs(rounds_info))
 end
 
-function create_byzantine_validators_with_even_initial_stake(byzantine_validators)
-    return [Validator(i, ADMITION_STAKE, 0.0, false, 0) for i in 1:byzantine_validators]
+function create_byzantine_validators_with_even_initial_stake(byzantine_validators, id_from)
+    return [Validator(id_from+i, ADMITION_STAKE, 0.0, false, 0) for i in 1:byzantine_validators]
 end
 
 function create_honest_validators_with_even_initial_stake(honest_validators_count)
     return [Validator(i, ADMITION_STAKE, 0.0, true, 0) for i in 1:honest_validators_count]
 end
 
-function create_byzantine_validators_with_random_initial_stake(byzantine_validators)
-    return [Validator(i, sample(ADMITION_STAKE:50), 0.0, false, 0) for i in 1:byzantine_validators]
+function create_byzantine_validators_with_random_initial_stake(byzantine_validators, id_from)
+    return [Validator(id_from+i, sample(ADMITION_STAKE:50), 0.0, false, 0) for i in 1:byzantine_validators]
 end
 
 function create_honest_validators_with_random_initial_stake(honest_validators_count)
@@ -138,12 +138,12 @@ function setup_simulation(validators_count::Int64, even_stake::Bool, honest_vali
     return even_stake ?
         cat(
             create_honest_validators_with_even_initial_stake(honest_validators_count), 
-            create_honest_validators_with_even_initial_stake(byzantine_validators_count),
+            create_byzantine_validators_with_even_initial_stake(byzantine_validators_count, honest_validators_count),
             dims=1
         ) :
         cat(
             create_honest_validators_with_random_initial_stake(honest_validators_count), 
-            create_byzantine_validators_with_random_initial_stake(byzantine_validators_count),
+            create_byzantine_validators_with_random_initial_stake(byzantine_validators_count, honest_validators_count),
             dims=1
         )
 end
