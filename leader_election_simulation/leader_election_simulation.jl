@@ -184,9 +184,12 @@ function simulate_scenario(scenario)
     CSV.write("./data/proposals/$(scenario).csv", DataFrame(evolution_of_validators_stake_in_rounds["proposals"]), compress=true)
 end
 
-for (i, scenario) in enumerate(SCENARIOS)
-    println("Simulating scenario $(i)")
-    @show scenario
-    @time simulate_scenario(scenario)
-    println("$(length(SCENARIOS)-i) more to simulate...")
+begin
+    println("Simulating $(length(SCENARIOS)) scenarios...")
+    @time for (i, scenario) in enumerate(SCENARIOS)
+        println("Simulating scenario $(i)")
+        @show scenario
+        @time simulate_scenario(scenario)
+        println("$(length(SCENARIOS)-i) more to simulate...")
+    end
 end
