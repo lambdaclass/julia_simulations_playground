@@ -101,17 +101,36 @@ function simulate_leader_election(validators_pool, rounds_info, wighted_leader_e
     propose_block(leader)
     proposal_accepted = simulate_proposal_voting(leader, filter(validator -> validator ≠ leader, validators_pool), timeout_probability, got_wise_probability)
     proposal_accepted ? reward(leader, reinvestment_probability) : slash(leader)
-    for (key, _) in rounds_info
-        append!(rounds_info[key], validators_pool[key].stake)
+    for id in rounds_info["id"]
+        append!(rounds_info["stake"][string(id)], validators_pool[id].stake)
+        append!(rounds_info["balance"][string(id)], validators_pool[id].balance)
+        append!(rounds_info["proposals"][string(id)], validators_pool[id].proposals)
     end
+    return rounds_info
 end
 
-function simulate_leader_election_n_rounds(num_rounds, validators_pool, reinvestment_probability, timeout_probability, got_wise_probability)
-    rounds_info = Dict(validator.id => [validator.stake] for validator in validators_pool)
+function simulate_leader_election_n_rounds(num_rounds, validators_pool, wighted_leader_election, reinvestment_probability, timeout_probability, got_wise_probability)
+    rounds_info = Dict(
+        "id" => [],
+        "is_honest" => [],
+        "stake" => Dict(),
+        "balance" => Dict(),
+        "proposals" => Dict()
+    )
+
+    for validator in validators_pool
+        append!(rounds_info["id"], validator.id)
+        append!(rounds_info["is_honest"], (validator.id, validator.is_honest))
+        rounds_info["stake"][string(validator.id)] = [validator.stake]
+        rounds_info["balance"][string(validator.id)] = [validator.balance]
+        rounds_info["proposals"][string(validator.id)] = [validator.proposals]
+    end
+
     for r in 1:num_rounds
         simulate_leader_election(validators_pool, rounds_info, wighted_leader_election, reinvestment_probability, timeout_probability, got_wise_probability)
     end
-    return Dict(string(k)=>v  for (k,v) in pairs(rounds_info))
+
+    return rounds_info
 end
 
 function create_byzantine_validators_with_even_initial_stake(byzantine_validators, id_from)
@@ -134,7 +153,6 @@ function setup_simulation(validators_count::Int64, even_stake::Bool, honest_vali
     @assert (0 <= honest_validators_proportion <= 1) "Honest validators proportion must be a value within [0, 1]"
     honest_validators_count = round(validators_count * honest_validators_proportion)
     byzantine_validators_count = validators_count - honest_validators_count
-    
     return even_stake ?
         cat(
             create_honest_validators_with_even_initial_stake(honest_validators_count), 
@@ -161,14 +179,9 @@ function simulate_scenario(scenario)
         got_wise_probability
     )
 
-    df = DataFrame(evolution_of_validators_stake_in_rounds)
-    CSV.write("./data/$(scenario).csv", df, compress=true)
-
-    savefig(plot(
-        Matrix(df), 
-        labels=permutedims(names(df)),
-        legend=false,
-    ), "./images/$(scenario).png")
+    CSV.write("./data/stake/$(scenario).csv", DataFrame(evolution_of_validators_stake_in_rounds["stake"]), compress=true)
+    CSV.write("./data/balance/$(scenario).csv", DataFrame(evolution_of_validators_stake_in_rounds["balance"]), compress=true)
+    CSV.write("./data/proposals/$(scenario).csv", DataFrame(evolution_of_validators_stake_in_rounds["proposals"]), compress=true)
 end
 
 for (i, scenario) in enumerate(SCENARIOS)
