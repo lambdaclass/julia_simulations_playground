@@ -67,7 +67,7 @@ end
 
 function simulate_proposal_voting(leader::Validator, validators_without_leader, timeout_probability, got_wise_probability)
     votes = map(validator -> vote(validator, leader, timeout_probability, got_wise_probability), validators_without_leader)
-    return mean(votes) > 2/3
+    return mean(votes) >= 19/29
 end
 
 function propose_block(validator::Validator)
