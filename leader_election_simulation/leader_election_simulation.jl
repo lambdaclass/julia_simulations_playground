@@ -13,13 +13,15 @@ ADMITION_STAKE = 32
 SLASH_PENALTY = 1
 
 HONEST_NODE_PROPORTION = [1/3, 2/3, 1.0]
+WEIGHTED_LEADER_ELECTION = [true, false]
 EVEN_INITIAL_STAKE = [true, false]
 REINVESTMENT_PROBABILITY = [.5, 1.0] # if no reinvestment look at another variables like proposals accepted or balance
 TIMEOUT_PROBABILITY  = [.0, .1]
 GOT_WISE_PROBABILITY = [.0, .50, 1.0]
 
 SCENARIOS = product(
-    HONEST_NODE_PROPORTION, 
+    HONEST_NODE_PROPORTION,
+    WEIGHTED_LEADER_ELECTION,
     EVEN_INITIAL_STAKE, 
     REINVESTMENT_PROBABILITY, 
     TIMEOUT_PROBABILITY, 
@@ -88,12 +90,14 @@ function validators_weight(validators)
     return map(validator -> weight_validator(validator, validators), validators)
 end
 
-function select_leader_from(validators)
-    return sample(validators, Weights(validators_weight(validators)))
+function select_leader_from(validators, wighted_leader_election)
+    return wighted_leader_election ?
+        sample(validators, Weights(validators_weight(validators))) :
+        sample(validators)
 end
 
-function simulate_leader_election(validators_pool, rounds_info, reinvestment_probability, timeout_probability, got_wise_probability)
-    leader = select_leader_from(validators_pool)
+function simulate_leader_election(validators_pool, rounds_info, wighted_leader_election, reinvestment_probability, timeout_probability, got_wise_probability)
+    leader = select_leader_from(validators_pool, wighted_leader_election)
     propose_block(leader)
     proposal_accepted = simulate_proposal_voting(leader, filter(validator -> validator ≠ leader, validators_pool), timeout_probability, got_wise_probability)
     proposal_accepted ? reward(leader, reinvestment_probability) : slash(leader)
@@ -105,7 +109,7 @@ end
 function simulate_leader_election_n_rounds(num_rounds, validators_pool, reinvestment_probability, timeout_probability, got_wise_probability)
     rounds_info = Dict(validator.id => [validator.stake] for validator in validators_pool)
     for r in 1:num_rounds
-        simulate_leader_election(validators_pool, rounds_info, reinvestment_probability, timeout_probability, got_wise_probability)
+        simulate_leader_election(validators_pool, rounds_info, wighted_leader_election, reinvestment_probability, timeout_probability, got_wise_probability)
     end
     return Dict(string(k)=>v  for (k,v) in pairs(rounds_info))
 end
@@ -145,11 +149,13 @@ function setup_simulation(validators_count::Int64, even_stake::Bool, honest_vali
 end
 
 function simulate_scenario(scenario)
-    (honest_node_proportion, even_initial_stake, reinvestment_probability, timeout_probability, got_wise_probability) = scenario
+    (honest_node_proportion, wighted_leader_election, even_initial_stake, 
+    reinvestment_probability, timeout_probability, got_wise_probability) = scenario
     validators_pool = setup_simulation(VALIDATORS_COUNT, even_initial_stake, honest_node_proportion)
     evolution_of_validators_stake_in_rounds = simulate_leader_election_n_rounds(
         ROUND_COUNT, 
-        validators_pool, 
+        validators_pool,
+        wighted_leader_election, 
         reinvestment_probability, 
         timeout_probability, 
         got_wise_probability
